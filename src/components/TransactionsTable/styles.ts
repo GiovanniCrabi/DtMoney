@@ -35,6 +35,4 @@ margin-top: 4rem;
       }
     }
   }
-
-
 `
