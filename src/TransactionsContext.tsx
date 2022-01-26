@@ -7,14 +7,30 @@ interface Transaction {
   amount: number;
   type: string;
   category:string;
-  createAt: string;
+  createdAt: string;
 }
+
+type TransactionInput = Omit<Transaction, 'id' | 'createdAt'>; 
+/* 
+O TRansactionInput vai herdar todo o Transaction MENOS o 'id e o 'createdAt';
+
+Poderíamos usar também o 'Pick', adicionando todos os campos que será usado  ficaria:
+type TransactionInput = Pick<Transaction, 'title' | 'amount' | 'type' | 'category' >;
+*/
 
 interface TransactionProviderProps {
   children: ReactNode;
 }
 
-export const TransactionsContext = createContext<Transaction[]>([]);
+interface TransactionsContextData {
+  transactions: Transaction[];
+  createTransaction: (transaction: TransactionInput) => void;
+
+}
+
+export const TransactionsContext = createContext<TransactionsContextData>(
+  { } as TransactionsContextData
+  );
 
 export function TransactionsProvider({ children }: TransactionProviderProps) {
 
@@ -25,8 +41,12 @@ export function TransactionsProvider({ children }: TransactionProviderProps) {
     .then(response => setTransactions(response.data.transactions))
   }, []);
 
+    function createTransaction(transaction: TransactionInput) {
+      api.post('/transactions', transaction)
+    }
+
     return (
-      <TransactionsContext.Provider value={transactions}>
+      <TransactionsContext.Provider value={{transactions, createTransaction }}>
           {children}
       </TransactionsContext.Provider>
     )
